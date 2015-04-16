@@ -1,5 +1,4 @@
 ## eth-faucet
-Offer some ether for POST requests
 
 ####Prerequisites
 
