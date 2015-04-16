@@ -8,7 +8,8 @@
     "express": "*",
     "express-limiter": "*",
     "redis": "*",
-    "body-parser": "*"
+    "body-parser": "*",
+    "log4js": "*"
   },
   "author": "Connor Keenan",
   "license": "ISC"
