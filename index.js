@@ -8,7 +8,14 @@ var app = express();
 
 var limitExpire = 1000 * 60 * 60;
 
+Object.keys(config).forEach(function(key) {
+  if (key in process.env) {
+    config[key] = process.env[key];
+  }
+});
+
 web3.setProvider(new web3.providers.HttpProvider('http://' + config.rpcaddr + ':' + config.rpcport));
+
 log4js.configure({
   appenders: [
     {type: 'console'},
