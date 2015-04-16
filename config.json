@@ -1,0 +1,7 @@
+{
+  "port": 80,
+  "rpcport": 8080,
+  "rpcaddr": "127.0.0.1",
+  "percent": 0.01,
+  "maxPerHr": 60
+}
