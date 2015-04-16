@@ -12,6 +12,7 @@ Object.keys(config).forEach(function(key) {
   if (key in process.env) {
     config[key] = process.env[key];
   }
+  console.log(key + ":" + config[key]);
 });
 
 web3.setProvider(new web3.providers.HttpProvider('http://' + config.rpcaddr + ':' + config.rpcport));
@@ -49,21 +50,22 @@ app.post('/faucet', function(req, res) {
   var addr = req.body.address || '';
   if (!addr || !addr.length) return res.send(0);
   var amount = Number(req.body.amount) || 0;
+  var amount = Math.min(amount, config.max);
 
   var percent = config.percent >= 1 ? 0.99 : config.percent;
 
   web3.eth.getBalance(web3.eth.coinbase, function(err, balance) {
-    var sendAmount = web3.toBigNumber(balance * percent).floor();
-    if (amount > 0 && amount < sendAmount) sendAmount = web3.toBigNumber(amount).floor();
+    var sendAmount = web3.toBigNumber(balance * percent);
+    if (amount > 0 && amount < sendAmount) sendAmount = web3.toBigNumber(amount);
 
     logger.info(web3.fromWei(balance, 'ether').toString(), '=>', web3.fromWei(sendAmount, 'ether').toString(), '=>', addr, '(' + web3.fromWei(web3.eth.getBalance(addr), 'ether') + ')');
 
     web3.eth.sendTransaction({
       from: web3.eth.coinbase,
       to: addr,
-      value: sendAmount
+      value: sendAmount.floor()
     }, function() {
-      res.send(sendAmount.toString());
+      res.send(sendAmount.floor().toString(10));
     });
   });
 });
