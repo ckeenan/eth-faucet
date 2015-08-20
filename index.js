@@ -48,7 +48,7 @@ limiter({
 
 app.post('/faucet', function(req, res) {
   var addr = req.body.address || '';
-  if (!addr || !addr.length) return res.send(0);
+  if (!addr || !addr.length || !web3.isAddress(addr)) return res.send('invalid address');
   var amount = Number(req.body.amount) || 0;
   var amount = Math.min(amount, config.max);
 
