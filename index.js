@@ -9,10 +9,11 @@ var app = express();
 var limitExpire = 1000 * 60 * 60;
 
 Object.keys(config).forEach(function(key) {
-  if (key in process.env) {
-    config[key] = process.env[key];
-  }
-  console.log(key + ":" + config[key]);
+  if (key.toUpperCase() in process.env) {
+    var newVal = process.env[key.toUpperCase()];
+    console.log('overwriting ' + key + ': ' + config[key] + ' with ' + newVal);
+    config[key] = newVal;
+  } else console.log(key + ': ' + config[key]);
 });
 
 web3.setProvider(new web3.providers.HttpProvider('http://' + config.rpcaddr + ':' + config.rpcport));
@@ -59,7 +60,7 @@ app.post('/faucet', function(req, res) {
   var percent = config.percent >= 1 ? 0.99 : config.percent;
 
   web3.eth.getBalance(web3.eth.coinbase, function(err, balance) {
-    var sendAmount = web3.toBigNumber(balance * percent);
+    var sendAmount = web3.toBigNumber(Math.min(config.max, balance * percent));
     if (amount > 0 && amount < sendAmount) sendAmount = web3.toBigNumber(amount);
 
     logger.info(web3.fromWei(balance, 'ether').toString(), '=>', web3.fromWei(sendAmount, 'ether').toString(), '=>', addr, '(' + web3.fromWei(web3.eth.getBalance(addr), 'ether') + ')');
