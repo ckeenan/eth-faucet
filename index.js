@@ -26,8 +26,12 @@ log4js.configure({
 });
 var logger = log4js.getLogger();
 
+function getParams(req) {
+  return req.method === 'GET' ? req.query : req.body;
+}
+
 var debugLogs = function(req, res, next) {
-  logger.debug(req.url, JSON.stringify(req.body), req.connection.remoteAddress);
+  logger.debug(req.url, JSON.stringify(getParams(req)), req.connection.remoteAddress);
   next();
 }
 
@@ -51,10 +55,11 @@ limiter({
   expire: limitExpire
 });
 
-app.post('/faucet', function(req, res) {
-  var addr = req.body.address || '';
+function faucetRequest(req, res) {
+  var params = getParams(req);
+  var addr = params.address || '';
   if (!addr || !addr.length || !web3.isAddress(addr)) return res.send('invalid address');
-  var amount = Number(req.body.amount) || 0;
+  var amount = Number(params.amount) || 0;
   var amount = Math.min(amount, config.max);
 
   var percent = config.percent >= 1 ? 0.99 : config.percent;
@@ -69,8 +74,13 @@ app.post('/faucet', function(req, res) {
       from: web3.eth.coinbase,
       to: addr,
       value: sendAmount.floor()
-    }, function() {
-      res.send(sendAmount.floor().toString(10));
+    }, function(err, hash) {
+      if (err) hash = err;
+      res.send(hash);
     });
   });
-});
+}
+
+
+app.get('/faucet', faucetRequest);
+app.post('/faucet', faucetRequest);

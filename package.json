@@ -4,7 +4,7 @@
   "description": "Accept POST request to send a percentage of current ether balance to an address",
   "main": "index.js",
   "dependencies": {
-    "web3": "*",
+    "web3": "<0.14.0",
     "express": "*",
     "express-limiter": "*",
     "redis": "*",
